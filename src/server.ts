@@ -1,20 +1,28 @@
 import 'dotenv/config'
 import fastify from 'fastify'
-import { PrismaClient } from '@prisma/client'
+import cors from '@fastify/cors'
+import jwt from '@fastify/jwt'
+import { memoriesRoutes } from './routes/memories'
+import { authRoutes } from './routes/auth'
 
 const app = fastify()
-const prisma = new PrismaClient()
 
-app.get('/users', async () => {
-  const users = await prisma.user.findMany()
-
-  return users
+app.register(cors, {
+  origin: true, // todas urls de frontend poderam acessar nosso backend
 })
+
+app.register(jwt, {
+  secret: 'spacetime',
+})
+
+app.register(authRoutes)
+app.register(memoriesRoutes)
 
 app
   .listen({
     port: 3333,
+    host: '0.0.0.0',
   })
   .then(() => {
-    console.log('listening on port')
+    console.log('🚀 HTTP server running on port http://localhost:3333')
   })
